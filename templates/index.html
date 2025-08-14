@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Voice Clone</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+        integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'SF Pro Display', sans-serif;
+            margin: 0;
+            background: #000;
+            color: #fff;
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: relative;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        section {
+            padding: 60px 20px;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 1s forwards ease-out;
+            transition: padding 0.3s ease;
+        }
+
+        section:hover {
+            padding: 70px 20px;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Animated background particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            animation: float 8s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) translateX(0px);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-100px) translateX(100px);
+                opacity: 0;
+            }
+        }
+
+        /* Neural network animation */
+        .neural-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.1;
+        }
+
+        .neural-node {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            background: #007aff;
+            border-radius: 50%;
+            animation: nodeGlow 5s ease-in-out infinite;
+        }
+
+        @keyframes nodeGlow {
+            0%,
+            100% {
+                opacity: 0.3;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.3);
+            }
+        }
+
+        /* Landing Page (Home) */
+        .landing-page {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            padding: 20px;
+            z-index: 2;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.6));
+        }
+
+        .hero-content {
+            flex: 1;
+            padding: 20px;
+            text-align: center;
+            z-index: 3;
+        }
+
+        .hero-content h1 {
+            font-size: 4em;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            color: #fff;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero-content p {
+            font-size: 1.5em;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 40px;
+            line-height: 1.4;
+        }
+
+        .hero-content .cta-button {
+            padding: 0;
+            border: none;
+            background: none;
+            cursor: pointer;
+            display: inline-block;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .hero-content .cta-button.glow-on-hover {
+            width: 280px;
+            height: 70px;
+            font-size: 1.3em;
+            line-height: 70px;
+            font-weight: 500;
+        }
+
+        .hero-video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 1;
+            opacity: 0.5;
+        }
+
+        .hero-video video {
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            object-fit: cover;
+        }
+
+        /* Clone Section - Sleek UI */
+        .clone-section {
+            position: relative;
+            z-index: 2;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 50px;
+            border-radius: 25px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+
+            /* Aurora Background from Uiverse.io */
+            /* Removed all code responsible for Aurora background in this class */
+        }
+
+        /* Remove the aurora container from this class */
+        /*
+        .clone-section::before {
+            content: "";
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.02) 0px, rgba(255, 255, 255, 0.02) 1px, transparent 1px, transparent 40px), repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.03) 0px, rgba(255, 255, 255, 0.03) 1px, transparent 1px, transparent 60px);
+            animation: grid-shift 20s linear infinite;
+            z-index: 0;
+        }
+
+        .clone-section::after {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, transparent 70%, rgba(10, 5, 32, 0.9) 100%);
+            animation: aurora-pulse 8s infinite alternate;
+            z-index: 0;
+        }
+
+        .clone-section>* {
+            position: relative;
+            z-index: 1;
+        }
+        */
+
+        /* General Styles */
+        body {
+            font-family: 'SF Pro Display', sans-serif;
+            /* Apple's Font */
+            margin: 0;
+            background: #000;
+            /* Dark Background */
+            color: #fff;
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: relative;
+            -webkit-font-smoothing: antialiased;
+            /* Smoother fonts for webkit browsers */
+            -moz-osx-font-smoothing: grayscale;
+            /* Smoother fonts for Firefox */
+        }
+
+        section {
+            padding: 60px 20px;
+            /* More Padding */
+            text-align: center;
+            opacity: 0;
+            /* Initially hidden for fade-in animation */
+            transform: translateY(20px);
+            /* Slight downward offset */
+            animation: fadeIn 1s forwards ease-out;
+            /* Fade-in animation */
+            transition: padding 0.3s ease;
+            /* Added padding transition */
+        }
+
+        section:hover {
+            padding: 70px 20px;
+            /* Increased padding on hover */
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Animated background particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            /* Behind content */
+        }
+
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            /* White particles */
+            border-radius: 50%;
+            animation: float 8s infinite linear;
+            /* Slower animation */
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) translateX(0px);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-100px) translateX(100px);
+                opacity: 0;
+            }
+        }
+
+        /* Neural network animation */
+        .neural-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            /* Behind content */
+            opacity: 0.1;
+        }
+
+        .neural-node {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            background: #007aff;
+            /* Apple's blue */
+            border-radius: 50%;
+            animation: nodeGlow 5s ease-in-out infinite;
+        }
+
+        @keyframes nodeGlow {
+            0%,
+            100% {
+                opacity: 0.3;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.3);
+            }
+        }
+
+        /* Landing Page (Home) */
+        .landing-page {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            padding: 20px;
+            z-index: 2;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.6));
+            /* Dark overlay */
+        }
+
+        .hero-content {
+            flex: 1;
+            padding: 20px;
+            text-align: center;
+            z-index: 3;
+        }
+
+        .hero-content h1 {
+            font-size: 4em;
+            /* Larger font */
+            font-weight: 600;
+            /* Semi-bold */
+            letter-spacing: -0.02em;
+            color: #fff;
+            /* White Text */
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            /* Text Shadow */
+        }
+
+        .hero-content p {
+            font-size: 1.5em;
+            /* Slightly Larger */
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 40px;
+            /* More space */
+            line-height: 1.4;
+        }
+
+        .hero-content .cta-button {
+            padding: 0;
+            border: none;
+            background: none;
+            cursor: pointer;
+            display: inline-block;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .hero-content .cta-button.glow-on-hover {
+            width: 280px;
+            /* Wider Button */
+            height: 70px;
+            /* Taller Button */
+            font-size: 1.3em;
+            line-height: 70px;
+            font-weight: 500;
+            /* Medium font-weight */
+        }
+
+        .hero-video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 1;
+            opacity: 0.5;
+        }
+
+        .hero-video video {
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            object-fit: cover;
+        }
+
+        /* Clone Section - Sleek UI */
+        .clone-section {
+            position: relative;
+            z-index: 2;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 50px;
+            border-radius: 25px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+            background: linear-gradient(to bottom, rgba(30, 30, 30, 0.7), rgba(40, 40, 40, 0.7)); /* Subdued Gradient */
+        }
+        
+        .clone-section::before {
+            content: '';
+            position: absolute;
+            bottom: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 200px;
+            background-color: rgba(0, 123, 255, 0.2); /* Slightly transparent blue */
+            border-radius: 50%;
+            filter: blur(60px);
+            animation: pulse 10s linear infinite, moveHorizontal 15s linear infinite alternate; /* Combine animations */
+            z-index: -1; /* Behind the main content */
+        }
+        @keyframes pulse {
+            0% {
+                transform: translateX(-50%) scale(1);
+                opacity: 0.7;
+            }
+        
+            50% {
+                transform: translateX(-50%) scale(1.2);
+                opacity: 0.3;
+            }
+        
+            100% {
+                transform: translateX(-50%) scale(1);
+                opacity: 0.7;
+            }
+        }
+        
+        @keyframes moveHorizontal {
+            0% {
+                left: 40%; /* Start position */
+            }
+        
+            100% {
+                left: 60%; /* End position */
+            }
+        }
+        
+         /* Button Style (Glowing) */
+        .glow-on-hover {
+             width: 250px;
+            height: 60px;
+            border: none;
+            outline: none;
+            color: #fff;
+            background: #222; /* Darker Button */
+            cursor: pointer;
+            position: relative;
+            z-index: 0;
+            border-radius: 15px; /* More Rounded */
+            font-weight: 500;
+            font-size: 1.2em;
+            letter-spacing: 0.05em;
+            transition: transform 0.2s ease;
+        }
+
+        .glow-on-hover:before {
+            content: '';
+            background: linear-gradient(45deg, #49aefe, #55efc4, #88f779, #cfffa3, #fdd835, #ffb347, #f48fb1, #ce93d8, #49aefe); /* More subtle, pastel gradient */
+            position: absolute;
+            top: -2px;
+            left:-2px;
+            background-size: 400%;
+            z-index: -1;
+            filter: blur(6px); /* Increased blur */
+            width: calc(100% + 4px);
+            height: calc(100% + 4px);
+            animation: glowing 20s linear infinite;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+            border-radius: 15px;
+        }
+
+        .glow-on-hover:hover {
+            transform: scale(1.05);
+        }
+
+        .glow-on-hover:active {
+            color: #000
+        }
+
+        .glow-on-hover:active:after {
+            background: transparent;
+        }
+
+        .glow-on-hover:hover:before {
+            opacity: 1;
+        }
+
+        .glow-on-hover:after {
+            z-index: -1;
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: #222;
+            left: 0;
+            top: 0;
+            border-radius: 15px;
+        }
+
+        @keyframes glowing {
+            0% { background-position: 0 0; }
+            50% { background-position: 400% 0; }
+            100% { background-position: 0 0; }
+        }
+
+        /* Animations (Example - adjust as needed) */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Voice Recording Section */
+        .record-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .record-button {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(45deg, #007aff, #29abe2); /* Apple Blue Gradient */
+            color: white;
+            font-size: 1.3rem;
+            cursor: pointer;
+            position: relative;
+            margin: 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 5px 20px rgba(0, 122, 255, 0.4);
+        }
+
+        .record-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(0, 122, 255, 0.5);
+        }
+
+        .record-button.recording {
+            animation: pulse 1.5s infinite;
+            background: linear-gradient(45deg, #ff3b30, #ff9500); /* Red/Orange Gradient */
+            box-shadow: 0 0 30px rgba(255, 59, 48, 0.7);
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.5);
+            }
+            70% {
+                box-shadow: 0 0 0 20px rgba(255, 59, 48, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 59, 48, 0);
+            }
+        }
+
+        /* Voice visualizer */
+        .visualizer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 70px;
+            margin: 20px 0;
+            gap: 4px;
+            perspective: 400px; /* Add perspective */
+        }
+
+        .bar {
+            width: 5px;
+            background: linear-gradient(to top, #007aff, #29abe2);
+            border-radius: 3px;
+            transition: height 0.1s ease, transform 0.2s ease; /* Add transform transition */
+            transform-origin: bottom; /* Set transform origin to bottom */
+        }
+
+        .bar:nth-child(even) {
+            transform: rotateX(20deg); /* Rotate even bars */
+        }
+
+        /* Status messages */
+        .status {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 15px;
+            font-weight: 500;
+            color: #fff;
+            opacity: 0.9;
+        }
+
+        .status.success {
+            background: rgba(76, 217, 100, 0.3); /* Green */
+            color: #81c784;
+            border: 1px solid rgba(76, 217, 100, 0.4);
+        }
+
+        .status.error {
+            background: rgba(255, 59, 48, 0.3); /* Red */
+            color: #e57373;
+            border: 1px solid rgba(255, 59, 48, 0.4);
+        }
+
+        /* Loading animation */
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #007aff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Audio player */
+        .audio-player {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .audio-controls {
+            background: rgba(30, 30, 30, 0.7);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .audio-controls:hover {
+            transform: scale(1.03);
+        }
+
+        /* Media Queries */
+        @media (max-width: 768px) {
+            section {
+                padding: 40px 15px;
+            }
+
+            .hero-content h1 {
+                font-size: 3em;
+            }
+
+            .hero-content p {
+                font-size: 1.2em;
+            }
+
+            .hero-content .cta-button.glow-on-hover {
+                width: 220px;
+                height: 60px;
+                font-size: 1.1em;
+                line-height: 60px;
+            }
+
+            .clone-section {
+                padding: 30px;
+                margin: 30px auto;
+            }
+
+            textarea {
+                width: 90%;
+                padding: 15px;
+                font-size: 1em;
+            }
+
+            .glow-on-hover {
+                width: 200px;
+                height: 50px;
+                font-size: 1em;
+            }
+
+            .record-button {
+                width: 100px;
+                height: 100px;
+                font-size: 1em;
+            }
+
+            .visualizer {
+                height: 50px;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+    <!-- Animated background particles -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Neural network background -->
+    <div class="neural-bg" id="neuralBg"></div>
+
+    <!-- Landing Page (Home) -->
+    <section id="home" class="landing-page">
+        <div class="hero-content">
+            <h1>Unlock the Power of AI Voice</h1>
+            <p>Create stunningly realistic voice clones with ease. Transform any text into lifelike speech using advanced AI.</p>
+            <a href="#clone" class="cta-button glow-on-hover">Get Started</a>
+        </div>
+        <div class="hero-video">
+    <video src="{{ url_for('static', filename='landingpage.mp4') }}" autoplay loop muted></video>
+        </div>
+    </section>
+
+    <!-- Voice Cloning Section -->
+    <section id="clone" class="clone-section">
+        <h2>AI Voice Cloning</h2>
+
+        <div class="record-section">
+            <h3>Record Your Voice</h3>
+            <p style="margin-bottom: 30px; color: rgba(255,255,255,0.7);">
+                Record a 10-second sample to create your unique voice clone.
+            </p>
+
+            <button class="record-button" id="recordBtn">
+                <span id="recordText">🎤 Record</span>
+            </button>
+
+            <!-- Voice visualizer -->
+            <div class="visualizer" id="visualizer"></div>
+
+            <div class="status" id="recordStatus" style="display: none;"></div>
+
+            <!-- Recorded audio playback -->
+            <div class="audio-player" id="recordedAudio" style="display: none;">
+                <div class="audio-controls">
+                    <h3>Your Recording</h3>
+                    <audio controls style="width: 100%; max-width: 400px;">
+                        <source id="audioSource" type="audio/wav">
+                    </audio>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-input-area">
+            <h3>Generate AI Voice</h3>
+            <p style="margin-bottom: 20px; color: rgba(255,255,255,0.7);">
+                Enter text to generate realistic speech using your cloned voice.
+            </p>
+            <textarea id="textInput" placeholder="Enter text to speak"></textarea>
+        </div>
+
+        <button class="glow-on-hover" id="generateBtn">Generate Voice</button>
+
+        <div class="loading" id="loading">
+            <div class="loading-spinner"></div>
+            <p>Processing with AI neural networks..</p>
+        </div>
+
+        <div class="status" id="generateStatus" style="display: none;"></div>
+
+        <!-- Generated audio playback -->
+        <div class="audio-player" id="generatedAudio" style="display: none;">
+            <div class="audio-controls">
+                <h3>Generated Voice</h3>
+                <audio controls style="width: 100%; max-width: 400px;">
+                    <source id="generatedAudioSource" type="audio/wav">
+                </audio>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about-section">
+        <h2>About AI Voice Cloning</h2>
+        <p>Discover the technology that's revolutionizing voice synthesis...</p>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact-section">
+        <h2>Contact Us</h2>
+        <p>Get in touch with our team for support and inquiries...</p>
+    </section>
+
+    <footer>
+        <p>&copy; 2025 AI Voice Clone</p>
+    </footer>
+
+    <script>
+        // Global variables
+        let mediaRecorder;
+        let audioChunks = [];
+        let isRecording = false;
+        let recordingTimer;
+        let visualizerInterval;
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function () {
+            initializeParticles();
+            initializeNeuralNetwork();
+            initializeVoiceVisualizer();
+            setupEventListeners();
+            observeSections(); // Initialize section observer
+        });
+
+        // Create floating particles
+        function initializeParticles() {
+            const particlesContainer = document.getElementById('particles');
+
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 3 + 4) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Create neural network background
+        function initializeNeuralNetwork() {
+            const neuralBg = document.getElementById('neuralBg');
+
+            for (let i = 0; i < 20; i++) {
+                const node = document.createElement('div');
+                node.className = 'neural-node';
+                node.style.left = Math.random() * 100 + '%';
+                node.style.top = Math.random() * 100 + '%';
+                node.style.animationDelay = Math.random() * 4 + 's';
+                neuralBg.appendChild(node);
+            }
+        }
+
+        // Initialize voice visualizer bars
+        function initializeVoiceVisualizer() {
+            const visualizer = document.getElementById('visualizer');
+
+            for (let i = 0; i < 20; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'bar';
+                bar.style.height = '5px';
+                visualizer.appendChild(bar);
+            }
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            document.getElementById('recordBtn').addEventListener('click', toggleRecording);
+            document.getElementById('generateBtn').addEventListener('click', generateVoice);
+        }
+
+        // Observe Sections for Animation
+        function observeSections() {
+            const sections = document.querySelectorAll('section');
+
+            const observer = new IntersectionObserver(entries => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.animationPlayState = 'running';
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, {
+                threshold: 0.2 // Trigger when 20% of the section is visible
+            });
+
+            sections.forEach(section => {
+                section.style.animationPlayState = 'paused'; // Initially paused
+                observer.observe(section);
+            });
+        }
+
+        // Toggle recording function
+        async function toggleRecording() {
+            if (!isRecording) {
+                await startRecording();
+            } else {
+                stopRecording();
+            }
+        }
+
+        // Start recording
+        async function startRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    audio: true
+                });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+
+                mediaRecorder.ondataavailable = event => {
+                    audioChunks.push(event.data);
+                };
+
+                mediaRecorder.onstop = () => {
+                    const audioBlob = new Blob(audioChunks, {
+                        type: 'audio/wav'
+                    });
+                    const audioUrl = URL.createObjectURL(audioBlob);
+
+                    document.getElementById('audioSource').src = audioUrl;
+                    document.getElementById('recordedAudio').style.display = 'block';
+
+                    showStatus('recordStatus', 'Voice recorded successfully!', 'success');
+                };
+
+                mediaRecorder.start();
+                isRecording = true;
+
+                // Update UI
+                const recordBtn = document.getElementById('recordBtn');
+                const recordText = document.getElementById('recordText');
+                recordBtn.classList.add('recording');
+                recordText.textContent = '⏹️ Stop';
+
+                // Start visualizer animation
+                startVisualizer();
+
+                // Auto-stop after 10 seconds
+                recordingTimer = setTimeout(() => {
+                    stopRecording();
+                }, 10000);
+
+                showStatus('recordStatus', 'Recording... (10 seconds max)', 'success');
+
+            } catch (error) {
+                console.error('Error accessing microphone:', error);
+                showStatus('recordStatus', 'Error accessing microphone. Please check permissions.', 'error');
+            }
+        }
+
+        function stopRecording() {
+    if (mediaRecorder && isRecording) {
+        mediaRecorder.stop();
+        mediaRecorder.stream.getTracks().forEach(track => track.stop());
+        isRecording = false;
+
+        const recordBtn = document.getElementById('recordBtn');
+        const recordText = document.getElementById('recordText');
+        recordBtn.classList.remove('recording');
+        recordText.textContent = '🎤 Record';
+
+        stopVisualizer();
+
+        if (recordingTimer) {
+            clearTimeout(recordingTimer);
+        }
+
+        mediaRecorder.onstop = () => {
+            const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+            const audioUrl = URL.createObjectURL(audioBlob);
+
+            document.getElementById('audioSource').src = audioUrl;
+            document.getElementById('recordedAudio').style.display = 'block';
+
+            const formData = new FormData();
+            formData.append('audio_file', audioBlob, 'recording.wav');
+
+            showStatus('recordStatus', 'Uploading voice sample...', 'success');
+
+            fetch('http://127.0.0.1:5000/upload-voice', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    console.error('Error from server:', data.error);
+                    showStatus('recordStatus', `Upload failed: ${data.error}`, 'error');
+                } else {
+                    console.log('Success from server:', data.message);
+                    showStatus('recordStatus', 'Voice sample uploaded successfully!', 'success');
+                }
+            })
+            .catch(error => {
+                console.error('Error uploading file:', error);
+                showStatus('recordStatus', 'Upload failed. Is the server running?', 'error');
+            });
+        };
+    }
+}
+
+
+
+        // Start visualizer animation
+        function startVisualizer() {
+            const bars = document.querySelectorAll('.bar');
+
+            visualizerInterval = setInterval(() => {
+                bars.forEach(bar => {
+                    const height = Math.random() * 40 + 5;
+                    bar.style.height = height + 'px';
+                    // Apply the even/odd bar rotation
+               
+                    // Apply the even/odd bar rotation
+                    if (Array.from(bars).indexOf(bar) % 2 === 0) {
+                        bar.style.transform = 'rotateX(20deg)';
+                    } else {
+                        bar.style.transform = 'rotateX(-20deg)';
+                    }
+                });
+            }, 100);
+        }
+
+        // Stop visualizer animation
+        function stopVisualizer() {
+            if (visualizerInterval) {
+                clearInterval(visualizerInterval);
+            }
+
+            const bars = document.querySelectorAll('.bar');
+            bars.forEach(bar => {
+                bar.style.height = '5px';
+                bar.style.transform = 'rotateX(0deg)';
+            });
+        }
+
+async function generateVoice() {
+    const textInput = document.getElementById('textInput');
+    const text = textInput.value.trim();
+    
+    const recordedAudioSrc = document.getElementById('audioSource').src;
+    if (!recordedAudioSrc.startsWith('blob:')) {
+         showStatus('generateStatus', 'Please record your voice first!', 'error');
+         return;
+    }
+
+    if (!text) {
+        showStatus('generateStatus', 'Please enter some text to generate speech.', 'error');
+        return;
+    }
+
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('generateBtn').disabled = true;
+    document.getElementById('generatedAudio').style.display = 'none';
+
+
+    try {
+        const response = await fetch('http://127.0.0.1:5000/generate-speech', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ text: text })
+        });
+        
+        const data = await response.json();
+
+        if (data.error) {
+            throw new Error(data.error);
+        }
+
+        const generatedAudioUrl = `http://127.0.0.1:5000${data.audioUrl}`;
+        
+        const generatedAudioSource = document.getElementById('generatedAudioSource');
+        generatedAudioSource.src = generatedAudioUrl;
+
+        const audioPlayer = document.querySelector('#generatedAudio audio');
+        audioPlayer.load();
+
+        showStatus('generateStatus', 'AI voice generated successfully!', 'success');
+        document.getElementById('generatedAudio').style.display = 'block';
+
+    } catch (error) {
+        console.error('Error generating voice:', error);
+        showStatus('generateStatus', `Error: ${error.message}`, 'error');
+    } finally {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('generateBtn').disabled = false;
+    }
+}
+
+        // Simulate AI processing with delay
+        function simulateAIProcessing() {
+            return new Promise(resolve => {
+                setTimeout(resolve, 3000);
+            });
+        }
+
+        // Show status message
+        function showStatus(elementId, message, type) {
+            const statusElement = document.getElementById(elementId);
+            statusElement.textContent = message;
+            statusElement.className = `status ${type}`;
+            statusElement.style.display = 'block';
+
+            // Hide after 5 seconds
+            setTimeout(() => {
+                statusElement.style.display = 'none';
+            }, 5000);
+        }
+
+        // Load voices when available
+        speechSynthesis.addEventListener('voiceschanged', () => {
+            // Voices are now loaded
+        });
+    </script>
+</body>
+
+</html>
