@@ -479,6 +479,10 @@
             .visualizer {
                 height: 50px;
             }
+#loading {
+    display: none !important;
+}
+
         }
     </style>
 </head>
@@ -546,7 +550,7 @@
 
         <div class="loading" id="loading">
             <div class="loading-spinner"></div>
-            <p>Processing with AI neural networks..</p>
+            <p>Generating Cloned Voice...</p>
         </div>
 
         <div class="status" id="generateStatus" style="display: none;"></div>
@@ -589,6 +593,8 @@
 
         // Initialize the app
         document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('loading').style.display = 'none'; // Force hide on load
+
             initializeParticles();
             initializeNeuralNetwork();
             initializeVoiceVisualizer();
@@ -673,84 +679,28 @@
         }
 
         // Start recording
-        async function startRecording() {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({
-                    audio: true
-                });
-                mediaRecorder = new MediaRecorder(stream);
-                audioChunks = [];
+async function startRecording() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+        audioChunks = [];
 
-                mediaRecorder.ondataavailable = event => {
-                    audioChunks.push(event.data);
-                };
-
-                mediaRecorder.onstop = () => {
-                    const audioBlob = new Blob(audioChunks, {
-                        type: 'audio/wav'
-                    });
-                    const audioUrl = URL.createObjectURL(audioBlob);
-
-                    document.getElementById('audioSource').src = audioUrl;
-                    document.getElementById('recordedAudio').style.display = 'block';
-
-                    showStatus('recordStatus', 'Voice recorded successfully!', 'success');
-                };
-
-                mediaRecorder.start();
-                isRecording = true;
-
-                // Update UI
-                const recordBtn = document.getElementById('recordBtn');
-                const recordText = document.getElementById('recordText');
-                recordBtn.classList.add('recording');
-                recordText.textContent = '⏹️ Stop';
-
-                // Start visualizer animation
-                startVisualizer();
-
-                // Auto-stop after 10 seconds
-                recordingTimer = setTimeout(() => {
-                    stopRecording();
-                }, 10000);
-
-                showStatus('recordStatus', 'Recording... (10 seconds max)', 'success');
-
-            } catch (error) {
-                console.error('Error accessing microphone:', error);
-                showStatus('recordStatus', 'Error accessing microphone. Please check permissions.', 'error');
-            }
-        }
-
-        function stopRecording() {
-    if (mediaRecorder && isRecording) {
-        mediaRecorder.stop();
-        mediaRecorder.stream.getTracks().forEach(track => track.stop());
-        isRecording = false;
-
-        const recordBtn = document.getElementById('recordBtn');
-        const recordText = document.getElementById('recordText');
-        recordBtn.classList.remove('recording');
-        recordText.textContent = '🎤 Record';
-
-        stopVisualizer();
-
-        if (recordingTimer) {
-            clearTimeout(recordingTimer);
-        }
-
+        // FIX: Define the onstop event handler BEFORE starting the recording
         mediaRecorder.onstop = () => {
             const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
             const audioUrl = URL.createObjectURL(audioBlob);
+            const audioSource = document.getElementById('audioSource');
+            const recordedAudioPlayer = document.getElementById('recordedAudio');
+            const audioControl = recordedAudioPlayer.querySelector('audio');
 
-            document.getElementById('audioSource').src = audioUrl;
-            document.getElementById('recordedAudio').style.display = 'block';
+            audioSource.src = audioUrl;
+            audioControl.load(); // Tell the player to load the new source
+            recordedAudioPlayer.style.display = 'block';
 
+            // Now, upload to the backend
             const formData = new FormData();
             formData.append('audio_file', audioBlob, 'recording.wav');
-
             showStatus('recordStatus', 'Uploading voice sample...', 'success');
-
             fetch('http://127.0.0.1:5000/upload-voice', {
                 method: 'POST',
                 body: formData
@@ -758,21 +708,59 @@
             .then(response => response.json())
             .then(data => {
                 if (data.error) {
-                    console.error('Error from server:', data.error);
                     showStatus('recordStatus', `Upload failed: ${data.error}`, 'error');
                 } else {
-                    console.log('Success from server:', data.message);
                     showStatus('recordStatus', 'Voice sample uploaded successfully!', 'success');
                 }
             })
             .catch(error => {
-                console.error('Error uploading file:', error);
                 showStatus('recordStatus', 'Upload failed. Is the server running?', 'error');
             });
         };
+
+        mediaRecorder.ondataavailable = event => {
+            audioChunks.push(event.data);
+        };
+
+        mediaRecorder.start();
+        isRecording = true;
+
+        // Update UI
+        const recordBtn = document.getElementById('recordBtn');
+        const recordText = document.getElementById('recordText');
+        recordBtn.classList.add('recording');
+        recordText.textContent = '⏹️ Stop';
+        startVisualizer();
+
+        recordingTimer = setTimeout(() => {
+            stopRecording();
+        }, 10000);
+
+        showStatus('recordStatus', 'Recording... (10 seconds max)', 'success');
+
+    } catch (error) {
+        console.error('Error accessing microphone:', error);
+        showStatus('recordStatus', 'Error accessing microphone. Please check permissions.', 'error');
     }
 }
 
+function stopRecording() {
+    if (mediaRecorder && isRecording) {
+        mediaRecorder.stop(); // This now triggers the onstop handler defined above
+        mediaRecorder.stream.getTracks().forEach(track => track.stop());
+        isRecording = false;
+
+        const recordBtn = document.getElementById('recordBtn');
+        const recordText = document.getElementById('recordText');
+        recordBtn.classList.remove('recording');
+        recordText.textContent = '🎤 Record';
+        stopVisualizer();
+
+        if (recordingTimer) {
+            clearTimeout(recordingTimer);
+        }
+    }
+}
 
 
         // Start visualizer animation
@@ -824,11 +812,11 @@ async function generateVoice() {
     }
 
     // Show loading animation
-    document.getElementById('loading').style.display = 'block';
     document.getElementById('generateBtn').disabled = true;
     document.getElementById('generatedAudio').style.display = 'none';
 
     try {
+        document.getElementById('loading').style.display = 'block';
         const response = await fetch('http://127.0.0.1:5000/generate-speech', {
             method: 'POST',
             headers: {

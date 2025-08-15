@@ -53,9 +53,9 @@ def upload_voice():
         return jsonify({"error": "File type not allowed"}), 400
 
 
+
 @app.route('/generate-speech', methods=['POST'])
 def generate_speech():
-    
     data = request.get_json()
     text = data.get('text', '')
 
@@ -74,14 +74,20 @@ def generate_speech():
             cfgw_input=0.5,
             api_name="/generate_tts_audio"
     )
-    output_filename=os.path.join(GENERATED_FOLDER, "output.wav")
-    shutil.copyfile(result,output_filename)
+
+
+    simple_filename = "output.wav"
+    output_filepath = os.path.join(app.config['GENERATED_FOLDER'], simple_filename)
+    
+    shutil.copyfile(result, output_filepath)
+
+    final_audio_url = f"/static/generated/{simple_filename}"
 
     return jsonify({
-        "message": "Speech generated successfully (placeholder)",
-        "audioUrl": f"/{GENERATED_FOLDER}/{output_filename}"
+        "message": "Speech generated successfully",
+        "audioUrl": final_audio_url
     }), 200
-
+    
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
